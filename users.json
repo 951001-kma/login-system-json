@@ -1,16 +1,16 @@
 {
-    "users": [
-      {
-        "id": 1,
-        "username": "admin",
-        "password": "admin123",
-        "email": "admin@example.com"
-      },
-      {
-        "id": 2,
-        "username": "usuario1",
-        "password": "clave123",
-        "email": "usuario1@example.com"
-      }
-    ]
-  }
+  "users": [
+    {
+      "id": 1,
+      "username": "admin",
+      "password": "admin123",
+      "email": "admin@example.com"
+    },
+    {
+      "id": 2,
+      "username": "kevin",
+      "password": "kevin.mamani",
+      "email": "70937840@continental.edu.pe"
+    }
+  ]
+}

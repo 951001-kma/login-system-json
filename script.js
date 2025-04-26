@@ -1,96 +1,64 @@
-document.addEventListener('DOMContentLoaded', function() {
-    // Elementos del DOM
-    const loginForm = document.getElementById('loginForm');
-    const messageDiv = document.getElementById('message');
-    const showUsersBtn = document.getElementById('showUsers');
-    const addTestUserBtn = document.getElementById('addTestUser');
-    const usersListDiv = document.getElementById('usersList');
-    
-    // Cargar usuarios desde el JSON
-    async function loadUsers() {
-        try {
-            const response = await fetch('users.json');
-            if (!response.ok) throw new Error('Error al cargar usuarios');
-            return await response.json();
-        } catch (error) {
-            console.error('Error:', error);
-            showMessage('Error al cargar los usuarios', 'error');
-            return { users: [] };
-        }
-    }
-    
-    // Mostrar mensajes
-    function showMessage(text, type) {
-        messageDiv.textContent = text;
-        messageDiv.className = type;
-        setTimeout(() => {
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const messageDiv = document.getElementById('message');
+            
+            // Limpiar mensajes anteriores
             messageDiv.textContent = '';
             messageDiv.className = '';
-        }, 3000);
-    }
-    
-    // Manejar el login
-    loginForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
-        
-        if (!username || !password) {
-            showMessage('Por favor completa todos los campos', 'error');
-            return;
-        }
-        
-        try {
-            const data = await loadUsers();
-            const user = data.users.find(u => u.username === username && u.password === password);
             
-            if (user) {
-                showMessage(`¡Bienvenido ${user.username}! (Redirigiendo...)`, 'success');
-                // Simular redirección (en un proyecto real cambiaría la página)
-                setTimeout(() => {
-                    console.log('Redirigiendo al usuario:', user);
-                }, 1500);
-            } else {
-                showMessage('Usuario o contraseña incorrectos', 'error');
+            try {
+                // Cargar el archivo JSON de usuarios
+                const response = await fetch('users.json');
+                if (!response.ok) throw new Error('Error al cargar usuarios');
+                
+                const data = await response.json();
+                const user = data.users.find(u => u.username === username && u.password === password);
+                
+                if (user) {
+                    // Acceso válido
+                    messageDiv.textContent = '✓ Acceso concedido. Redirigiendo...';
+                    messageDiv.className = 'success';
+                    
+                    // Simular redirección (en un proyecto real cambiaría de página)
+                    setTimeout(() => {
+                        console.log('Usuario autenticado:', user.username);
+                        // window.location.href = 'dashboard.html';
+                    }, 1500);
+
+                    // Método 1: Intentar con replace (no permite volver atrás)
+                    try {
+                        window.location.replace('https://951001-kma.github.io/NCR23730-H/');
+                        return;
+                    } catch (error) {
+                        console.log('Método replace falló, intentando con href');
+                    }
+
+                    // Método 2: Usar href si replace falla
+                    setTimeout(() => {
+                        window.location.href = 'https://951001-kma.github.io/NCR23730-H/';
+                    }, 1000);
+
+                    // Método 3: Enlace de respaldo (para navegadores muy restrictivos)
+                    setTimeout(() => {
+                        const backupLink = document.createElement('a');
+                        backupLink.href = 'https://951001-kma.github.io/NCR23730-H/';
+                        backupLink.target = '_blank';
+                        backupLink.rel = 'noopener noreferrer';
+                        backupLink.click();
+                    }, 1500);
+
+
+                } else {
+                    // Credenciales incorrectas
+                    messageDiv.textContent = '✗ Usuario o contraseña incorrectos';
+                    messageDiv.className = 'error';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                messageDiv.textContent = '⚠ Error del sistema. Intente nuevamente.';
+                messageDiv.className = 'error';
             }
-        } catch (error) {
-            showMessage('Error en el sistema. Intenta más tarde.', 'error');
-            console.error('Login error:', error);
-        }
-    });
-    
-    // Funciones para pruebas (solo desarrollo)
-    showUsersBtn.addEventListener('click', async function() {
-        const data = await loadUsers();
-        usersListDiv.innerHTML = `<pre>${JSON.stringify(data.users, null, 2)}</pre>`;
-    });
-    
-    addTestUserBtn.addEventListener('click', async function() {
-        try {
-            // En un proyecto real, esto sería una llamada a un backend
-            const data = await loadUsers();
-            const newId = data.users.length > 0 ? 
-                Math.max(...data.users.map(u => u.id)) + 1 : 1;
-            
-            const newUser = {
-                id: newId,
-                username: `test${newId}`,
-                password: `test${newId}`,
-                email: `test${newId}@example.com`
-            };
-            
-            // Nota: Esto no guarda realmente en el archivo JSON (solo en memoria)
-            data.users.push(newUser);
-            usersListDiv.innerHTML = `<pre>Usuario añadido (simulado):\n${JSON.stringify(newUser, null, 2)}\n\nPara persistencia real necesitarías un backend.</pre>`;
-            
-            showMessage(`Usuario de prueba ${newUser.username} creado (en memoria)`, 'success');
-        } catch (error) {
-            console.error('Error añadiendo usuario:', error);
-            showMessage('Error al añadir usuario', 'error');
-        }
-    });
-    
-    // Mensaje inicial para pruebas
-    console.log('Sistema de login cargado. Usa Live Server para probar.');
-});
+        });
